@@ -289,115 +289,6 @@ function VintageChronoApp() {
   }
 
   // PUBLIC_INTERFACE
-  function MyBirthYearButton() {
-    // Local state for modal fields: day, month, year
-    const [birthDay, setBirthDay] = useState(today.getDate());
-    const [birthMonth, setBirthMonth] = useState(today.getMonth() + 1);
-    const [birthYearFull, setBirthYearFull] = useState(today.getFullYear());
-
-    // Reset modal fields when showing modal
-    useEffect(() => {
-      if (showBirthModal) {
-        setBirthDay(today.getDate());
-        setBirthMonth(today.getMonth() + 1);
-        setBirthYearFull(today.getFullYear());
-      }
-    // eslint-disable-next-line
-    }, [showBirthModal]);
-
-    function handleBirthDateGo() {
-      if (
-        birthYearFull >= 1900 &&
-        birthYearFull <= today.getFullYear() &&
-        birthMonth >= 1 && birthMonth <= 12 &&
-        birthDay >= 1 && birthDay <= daysInMonth(birthYearFull, birthMonth)
-      ) {
-        // Set the main selected date to full birth date
-        setSelectedDate({
-          day: birthDay,
-          month: birthMonth,
-          year: birthYearFull
-        });
-        setTimelineYear(birthYearFull);
-        setShowBirthModal(false);
-      }
-    }
-
-    return (
-      <>
-        <button
-          className="typewriter my-birth-btn"
-          onClick={() => { playClickSound(); setShowBirthModal(true); }}
-          aria-label="My Birth Date"
-          tabIndex={0}
-        >
-          📜 My Birth Date
-        </button>
-        {showBirthModal && (
-          <div className="modal-overlay" role="dialog">
-            <div className="modal-content">
-              <div style={{ marginBottom: "0.7em" }}>
-                <label style={{ display: "block", marginBottom: "0.5em" }}>
-                  Enter your full birth date:
-                </label>
-                <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  <select
-                    className="modal-input"
-                    value={birthDay}
-                    onChange={e => setBirthDay(Number(e.target.value))}
-                    aria-label="Birth Day"
-                  >
-                    {[...Array(daysInMonth(birthYearFull, birthMonth)).keys()].map(i =>
-                      <option key={i + 1} value={i + 1}>{i + 1}</option>
-                    )}
-                  </select>
-                  <select
-                    className="modal-input"
-                    value={birthMonth}
-                    onChange={e => setBirthMonth(Number(e.target.value))}
-                    aria-label="Birth Month"
-                  >
-                    {Array.from({ length: 12 }, (_, i) =>
-                      <option key={i + 1} value={i + 1}>{monthShortName(i + 1)}</option>
-                    )}
-                  </select>
-                  <input
-                    type="number"
-                    className="modal-input"
-                    min="1900"
-                    max={today.getFullYear()}
-                    value={birthYearFull}
-                    onChange={e => setBirthYearFull(Number(e.target.value.replace(/[^0-9]/g, '').slice(0, 4)))}
-                    aria-label="Birth Year"
-                    placeholder="YYYY"
-                    style={{ width: 80 }}
-                  />
-                </div>
-              </div>
-              <div className="modal-actions">
-                <button
-                  className="wax-btn typewriter"
-                  onClick={() => { playClickSound(); handleBirthDateGo(); }}
-                  aria-label="Go"
-                >
-                  Go
-                </button>
-                <button
-                  className="wax-btn"
-                  onClick={() => { playClickSound(); setShowBirthModal(false); }}
-                  aria-label="Close"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // PUBLIC_INTERFACE
   function SoundToggle() {
     function handleToggle() {
       toggleSound();
@@ -455,9 +346,8 @@ function VintageChronoApp() {
         <div className="controls-container">
           <RotaryDatePicker />
           <TimelineSlider />
-          <div className="button-row">
+          <div className="button-row centered">
             <RandomYearButton />
-            <MyBirthYearButton />
           </div>
         </div>
         <EventsFeed />
