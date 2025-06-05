@@ -42,8 +42,6 @@ function VintageChronoApp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null); // New: error state for feed
   const [soundOn, setSoundOn] = useState(false);
-  const [showBirthModal, setShowBirthModal] = useState(false);
-  const [birthYear, setBirthYear] = useState('');
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Responsive event listener
@@ -110,19 +108,7 @@ function VintageChronoApp() {
     setSelectedDate((prev) => ({ ...prev, year: randomYear }));
   }
 
-  // PUBLIC_INTERFACE
-  function handleMyBirthYear(year) {
-    setTimelineYear(Number(year));
-    setSelectedDate((prev) => ({ ...prev, year: Number(year) }));
-    setShowBirthModal(false);
-  }
 
-  // PUBLIC_INTERFACE
-  function handleMyBirthDate(date) {
-    setTimelineYear(Number(date));
-    setSelectedDate((prev) => ({ ...prev, year: Number(date) }));
-    setShowBirthModal(false);
-  }
 
   // PUBLIC_INTERFACE
   function toggleSound() {
