@@ -114,6 +114,13 @@ function VintageChronoApp() {
   }
 
   // PUBLIC_INTERFACE
+  function handleMyBirthDate(date) {
+    setTimelineYear(Number(date));
+    setSelectedDate((prev) => ({ ...prev, year: Number(date) }));
+    setShowBirthModal(false);
+  }
+
+  // PUBLIC_INTERFACE
   function toggleSound() {
     setSoundOn((prev) => !prev);
     // Placeholder for sound toggle behavior
@@ -284,25 +291,25 @@ function VintageChronoApp() {
         <button
           className="typewriter my-birth-btn"
           onClick={() => setShowBirthModal(true)}
-          aria-label="My Birth Year"
+          aria-label="My Birth Date"
           tabIndex={0}
         >
-          📜 My Birth Year
+          📜 My Birth Date
         </button>
         {showBirthModal && (
           <div className="modal-overlay" role="dialog">
             <div className="modal-content">
-              <label htmlFor="birth-year-input">
-                Enter your birth year:
+              <label htmlFor="birth-date-input">
+                Enter your birth date (year):
                 <input
-                  id="birth-year-input"
+                  id="birth-date-input"
                   type="number"
                   min="1900"
                   max={today.getFullYear()}
                   value={birthYear}
                   onChange={e => setBirthYear(e.target.value.replace(/[^0-9]/g, '').slice(0, 4))}
                   className="modal-input"
-                  aria-label="Birth Year"
+                  aria-label="Birth Date"
                 />
               </label>
               <div className="modal-actions">
@@ -310,7 +317,7 @@ function VintageChronoApp() {
                   className="wax-btn typewriter"
                   onClick={() => {
                     if (birthYear && Number(birthYear) > 1899 && Number(birthYear) <= today.getFullYear())
-                      handleMyBirthYear(birthYear);
+                      handleMyBirthDate(birthYear);
                   }}
                   aria-label="Go"
                 >
