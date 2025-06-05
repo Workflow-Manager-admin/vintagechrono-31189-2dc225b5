@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
+import { playClickSound, setGlobalSoundEnabled } from './clickSound';
 
 // --- API Integration: Modular structure for fetching historical events ---
 /**
@@ -122,8 +123,11 @@ function VintageChronoApp() {
 
   // PUBLIC_INTERFACE
   function toggleSound() {
-    setSoundOn((prev) => !prev);
-    // Placeholder for sound toggle behavior
+    setSoundOn((prev) => {
+      setGlobalSoundEnabled(!prev);
+      return !prev;
+    });
+    // When toggling, click sound should not play
   }
 
   // ---- Subcomponents ----
