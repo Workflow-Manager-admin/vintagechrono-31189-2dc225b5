@@ -332,6 +332,7 @@ function VintageChronoApp() {
         <div className="quill">
           <span className="quill-feather"></span>
           <span className="quill-body"></span>
+          <span className="quill-writing-line" />
         </div>
         <span className="loading-msg">Consulting the annals of history...</span>
       </div>
