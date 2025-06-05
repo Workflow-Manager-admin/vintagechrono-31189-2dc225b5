@@ -211,6 +211,11 @@ function VintageChronoApp() {
 
   // PUBLIC_INTERFACE
   function TimelineSlider() {
+    // Use custom onChange to trigger sound
+    function handleSliderChange(e) {
+      playClickSound();
+      handleTimelineChange(e);
+    }
     return (
       <section className="timeline-slider" aria-label="Timeline slider">
         <label htmlFor="timeline-range" className="timeline-label">
@@ -222,7 +227,7 @@ function VintageChronoApp() {
           max={today.getFullYear()}
           value={timelineYear}
           id="timeline-range"
-          onChange={handleTimelineChange}
+          onChange={handleSliderChange}
           className="timeline-range"
           aria-valuenow={timelineYear}
           aria-valuemin={1800}
