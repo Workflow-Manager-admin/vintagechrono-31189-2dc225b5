@@ -1,6 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 
+// --- API Integration: Modular structure for fetching historical events ---
+/**
+ * Fetches notable events from Wikipedia's 'On This Day' API, for the specified month and day.
+ * Optionally could be refactored for other APIs (e.g. NYT/Archive) in the future.
+ *
+ * @param {number} month - 1 based month [1-12]
+ * @param {number} day   - 1 based day [1-31]
+ * @returns {Promise<Array<{year:number, title:string, description:string, wikipedia?:Array}>} events that happened (can be empty)
+ */
+async function fetchWikipediaEvents(month, day) {
+  const apiUrl = `https://en.wikipedia.org/api/rest_v1/feed/onthisday/events/${month}/${day}`;
+  const resp = await fetch(apiUrl);
+  if (!resp.ok) {
+    throw new Error(`Failed to fetch Wikipedia events: ${resp.status}`);
+  }
+  const data = await resp.json();
+  // Wikipedia returns [{year, text, pages: [article1, ...]}] 
+  // we'll expose .year, .text, .pages (grab first title if exists for UI headline)
+  return (data.events || []).map(item => ({
+    year: item.year,
+    title: item.text?.split(/[.!?]/)[0] || (item.pages?.[0]?.titles?.normalized ?? "Event"),
+    description: item.text ?? "",
+    wikipedia: item.pages
+  }));
+}
+
 // PUBLIC_INTERFACE
 function VintageChronoApp() {
   // Feature state
@@ -13,6 +39,7 @@ function VintageChronoApp() {
   const [timelineYear, setTimelineYear] = useState(today.getFullYear());
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // New: error state for feed
   const [soundOn, setSoundOn] = useState(false);
   const [showBirthModal, setShowBirthModal] = useState(false);
   const [birthYear, setBirthYear] = useState('');
@@ -25,16 +52,34 @@ function VintageChronoApp() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Simulated fetch for events from Wikipedia
+  // Fetch actual events from Wikipedia for selected date
   useEffect(() => {
+    let didCancel = false;
     setLoading(true);
-    // Simulate network loading for the loading animation
-    const timeout = setTimeout(() => {
-      setEvents(mockEventsForDate(selectedDate));
-      setLoading(false);
-    }, 900);
-    return () => clearTimeout(timeout);
-  }, [selectedDate]);
+    setError(null);
+    setEvents([]);
+    fetchWikipediaEvents(selectedDate.month, selectedDate.day)
+      .then(evts => {
+        if (!didCancel) {
+          // Filter to show only events from timelineYear and earlier
+          const filtered = evts.filter(e => e.year <= selectedDate.year);
+          // Sort descending by year, take up to 10 results
+          const sorted = filtered.sort((a, b) => b.year - a.year).slice(0, 10);
+          setEvents(sorted);
+          setLoading(false);
+        }
+      })
+      .catch(err => {
+        if (!didCancel) {
+          setLoading(false);
+          setError("Unable to load historical events right now. Please try a different date or check your connection.");
+        }
+      });
+    return () => { didCancel = true; };
+    // Only fetch on month/day change, NOT year (since API is by month/day)
+    // If user changes year, feed is filtered client-side
+    // eslint-disable-next-line
+  }, [selectedDate.month, selectedDate.day, selectedDate.year]);
 
   // Helper functions
   // PUBLIC_INTERFACE
@@ -172,6 +217,14 @@ function VintageChronoApp() {
   // PUBLIC_INTERFACE
   function EventsFeed() {
     if (loading) return <LoadingAnimation />;
+    if (error) {
+      return (
+        <div className="empty-events" aria-live="polite" style={{ color: "#b03624" }}>
+          <span role="img" aria-label="error" style={{ fontSize: "1.2em", marginRight: 4 }}>⚠️</span>
+          {error}
+        </div>
+      );
+    }
     if (!events.length) return (
       <div className="empty-events">
         No events for this date. Try another or hit <strong>Random Year</strong>.
@@ -180,10 +233,28 @@ function VintageChronoApp() {
     return (
       <section className="events-feed" aria-live="polite" aria-label="Historical events">
         {events.map((event, idx) => (
-          <article className="event-card" key={event.title + idx} tabIndex={0}>
+          <article className="event-card" key={event.year + "-" + idx + "-" + (event.title || '')} tabIndex={0}>
             <header className="event-card-header">
               <span className="event-year">{event.year}</span>
-              <h3 className="event-title">{event.title}</h3>
+              <h3 className="event-title">
+                {event.title}
+                {" "}
+                {event.wikipedia && event.wikipedia[0]?.content_urls?.desktop?.page && (
+                  <a
+                    href={event.wikipedia[0].content_urls.desktop.page}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    tabIndex={0}
+                    aria-label="Read more on Wikipedia"
+                    style={{
+                      fontSize: "0.82em",
+                      color: "#bfa77a",
+                      marginLeft: 5,
+                      textDecoration: "underline dotted"
+                    }}
+                  >[link]</a>
+                )}
+              </h3>
             </header>
             <p className="event-desc">{event.description}</p>
           </article>
@@ -334,26 +405,7 @@ function monthShortName(num) {
   return months[num - 1];
 }
 
-// Simulated events for demo (would be API in real app)
-function mockEventsForDate(date) {
-  const seed = (date.year * 10000) + (date.month * 100) + date.day;
-  // Return deterministic shuffled events (5-7) for same date
-  const pool = [
-    { year: 1945, title: "World War II Ends", description: "The Allied forces officially accept Nazi Germany's surrender, marking the end of WWII in Europe." },
-    { year: 1912, title: "Titanic Sinks", description: "The RMS Titanic sinks after hitting an iceberg in the North Atlantic, with the loss of over 1,500 lives." },
-    { year: 1969, title: "Man Walks on Moon", description: "Apollo 11 astronaut Neil Armstrong becomes the first person to walk on the Moon." },
-    { year: 1776, title: "Declaration of Independence", description: "The US Declaration of Independence is adopted by the Second Continental Congress." },
-    { year: 1989, title: "Berlin Wall Falls", description: "The fall of the Berlin Wall paves the way for German reunification." },
-    { year: 2001, title: "Wikipedia Launched", description: "Wikipedia, the free online encyclopedia, goes live for the first time." },
-    { year: 1954, title: "Rationing Ends in UK", description: "Nearly a decade after World War II, food rationing ends in Great Britain." },
-    { year: 2008, title: "Large Hadron Collider Start", description: "CERN's mega-scientific experiment begins underground near Geneva." }
-  ];
-  // Deterministic shuffle
-  let s = seed % pool.length;
-  let n = (seed % 3) + 5; // show 5-7 events
-  if (date.month === 4 && date.day === 1) return []; // April 1: no events, edge
-  return Array.from({ length: n }, (_, i) => pool[(s + i) % pool.length]);
-}
+
 
 // --------- STYLES ---------
 
