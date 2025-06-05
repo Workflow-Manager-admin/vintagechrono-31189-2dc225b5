@@ -270,6 +270,7 @@ function VintageChronoApp() {
                     rel="noopener noreferrer"
                     tabIndex={0}
                     aria-label="Read more on Wikipedia"
+                    onClick={playClickSound}
                     style={{
                       fontSize: "0.82em",
                       color: "#bfa77a",
