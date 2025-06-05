@@ -412,10 +412,17 @@ function VintageChronoApp() {
 
   // PUBLIC_INTERFACE
   function SoundToggle() {
+    function handleToggle() {
+      toggleSound();
+      // play click only if toggling ON (after state updates), short delay to ensure state is correct
+      setTimeout(() => {
+        if (!soundOn) playClickSound();
+      }, 70);
+    }
     return (
       <button
         className={`sound-toggle typewriter ${soundOn ? 'sound-on' : ''}`}
-        onClick={toggleSound}
+        onClick={handleToggle}
         aria-pressed={soundOn}
         aria-label={soundOn ? "Sound on" : "Sound off"}
         tabIndex={0}
