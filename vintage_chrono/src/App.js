@@ -189,13 +189,18 @@ function VintageChronoApp() {
         </option>
       );
     }
+    // Wrap onChange to play sound before real change
+    function handleChange(e) {
+      playClickSound();
+      onChange(Number(e.target.value));
+    }
     return (
       <label className="rotary-group" aria-label={label}>
         <span className="rotary-label">{label}</span>
         <select
           className="rotary-select"
           value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={handleChange}
           aria-label={label}
         >
           {opts}
