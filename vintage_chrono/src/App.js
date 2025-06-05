@@ -50,8 +50,10 @@ function VintageChronoApp() {
   useEffect(() => {
     const onResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', onResize);
+    // Set initial sound preference
+    setGlobalSoundEnabled(soundOn);
     return () => window.removeEventListener('resize', onResize);
-  }, []);
+  }, []); // (soundOn intentionally not in deps: only at mount)
 
   // Fetch actual events from Wikipedia for selected date
   useEffect(() => {
@@ -102,6 +104,7 @@ function VintageChronoApp() {
 
   // PUBLIC_INTERFACE
   function handleRandomYear() {
+    playClickSound();
     const randomYear = Math.floor(Math.random() * (today.getFullYear() - 1800 + 1)) + 1800;
     setTimelineYear(randomYear);
     setSelectedDate((prev) => ({ ...prev, year: randomYear }));
@@ -327,7 +330,7 @@ function VintageChronoApp() {
       <>
         <button
           className="typewriter my-birth-btn"
-          onClick={() => setShowBirthModal(true)}
+          onClick={() => { playClickSound(); setShowBirthModal(true); }}
           aria-label="My Birth Date"
           tabIndex={0}
         >
@@ -377,14 +380,14 @@ function VintageChronoApp() {
               <div className="modal-actions">
                 <button
                   className="wax-btn typewriter"
-                  onClick={handleBirthDateGo}
+                  onClick={() => { playClickSound(); handleBirthDateGo(); }}
                   aria-label="Go"
                 >
                   Go
                 </button>
                 <button
                   className="wax-btn"
-                  onClick={() => setShowBirthModal(false)}
+                  onClick={() => { playClickSound(); setShowBirthModal(false); }}
                   aria-label="Close"
                 >
                   Cancel
