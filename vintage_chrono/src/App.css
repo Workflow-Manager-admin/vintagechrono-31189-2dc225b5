@@ -106,3 +106,23 @@ body {
   padding: 12px 24px;
   font-size: 1.1rem;
 }
+
+/* --- Custom for main options centering & Year label --- */
+.button-row.centered {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+}
+
+/* Bigger, more visible timeline Year label */
+.year-upgrade {
+  font-size: 1.45rem !important;
+  font-weight: 700 !important;
+  color: #fff !important;
+  letter-spacing: .04em !important;
+  text-shadow: 0 2px 6px #00224480, 0 1px 0 #fff !important;
+  margin-bottom: .15em !important;
+  margin-top: .12em !important;
+  font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+}
