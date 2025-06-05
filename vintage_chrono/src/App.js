@@ -204,8 +204,8 @@ function VintageChronoApp() {
     }
     return (
       <section className="timeline-slider" aria-label="Timeline slider">
-        <label htmlFor="timeline-range" className="timeline-label">
-          <span role="img" aria-label="pocket watch" className="timeline-emoji">⌚</span> Year
+        <label htmlFor="timeline-range" className="timeline-label year-upgrade">
+          Year
         </label>
         <input
           type="range"
